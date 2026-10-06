@@ -1,0 +1,149 @@
+import tkinter as tk
+from PIL import Image, ImageTk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from datetime import date
+
+from constants import *
+from weather import *
+from weather_queries import *
+from plot import *
+
+# ----------------------------------------------------------------------
+# Variables globales
+# ----------------------------------------------------------------------
+# Ville actuelle
+city = "Paris"
+# city = "Bordeaux"
+
+# ImageTk : ces variables globales permettent d'éviter que le garbage collector ne les efface
+image_background = None
+weather_icon = None
+
+# ----------------------------------------------------------------------
+# Canvas
+# ----------------------------------------------------------------------
+
+def load_background(canvas):
+    """Charge "assets/blue_sky.jpg", la redimensionne et la place sur le canvas."""
+    global image_background
+    image = Image.open("assets/blue_sky.jpg").convert("RGBA")
+    image = image.resize((WIDTH, HEIGHT))
+    image_background = ImageTk.PhotoImage(image)
+
+def erase_screen(canvas):
+    """Supprime tout ce qui a le tag 'ecran'."""
+    canvas.delete("ecran")
+
+import tkinter as tk
+from PIL import Image, ImageTk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from datetime import date
+
+from constants import *
+from weather import *
+from weather_queries import *
+from plot import *
+
+# ----------------------------------------------------------------------
+# Variables globales
+# ----------------------------------------------------------------------
+# Ville actuelle
+city = "Paris"
+# city = "Bordeaux"
+
+# ImageTk : ces variables globales permettent d'éviter que le garbage collector ne les efface
+image_background = None
+weather_icon = None
+
+# ----------------------------------------------------------------------
+# Canvas
+# ----------------------------------------------------------------------
+
+def load_background(canvas):
+    """Charge "assets/blue_sky.jpg", la redimensionne et la place sur le canvas."""
+    global image_background
+
+    image = Image.open("assets/blue_sky.jpg").convert("RGBA")
+    image = image.resize((WIDTH, HEIGHT))
+    image_background = ImageTk.PhotoImage(image)
+    canvas.create_image(0, 0, image = image_background, anchor = "nw")
+
+
+def erase_screen(canvas):
+    """Supprime tout ce qui a le tag 'ecran'."""
+    canvas.delete("ecran")
+
+
+# ----------------------------------------------------------------------
+# Ecrans
+# ----------------------------------------------------------------------
+
+def draw_welcome_screen(window, canvas):
+    """Écran 1 : Icône de la météo, température actuelle, températures min et max du jour."""
+    global weather_icon
+
+    erase_screen(canvas)
+
+    # Données d'exemple du sujet (on les remplacera par l'API plus tard)
+    temperature = 19.7
+    code = 0
+    t_min, t_max = 18.0, 27.4
+
+    x = WIDTH // 2   # milieu horizontal du canvas
+
+    # 1. Nom de la ville
+    canvas.create_text(x, 60, text = city,
+                       font = ("Arial", 26, "bold"), fill = "white", tags = "ecran")
+
+    # 2. Icône correspondant au code météo
+    nom_icone = icon_of_code(code)
+    image = Image.open("assets/icons/" + nom_icone + ".png")
+    image = image.resize((120, 120))
+    weather_icon = ImageTk.PhotoImage(image)
+    canvas.create_image(x, 170, image = weather_icon, tags = "ecran")
+
+    # 3. Température actuelle
+    texte_temp = str(round(temperature)) + " °C"
+    canvas.create_text(x, 290, text = texte_temp,
+                       font = ("Arial", 40, "bold"), fill = "white", tags = "ecran")
+
+    # 4. Températures min et max
+    texte_minmax = "Min : " + str(round(t_min)) + " °C     Max : " + str(round(t_max)) + " °C"
+    canvas.create_text(x, 350, text = texte_minmax,
+                       font = ("Arial", 12), fill = "white", tags = "ecran")
+
+    # 5. Bouton vers les prévisions
+    button = tk.Button(window, text = "Prévisions 7 jours",
+                       command = lambda : draw_forecast(window, canvas))
+    canvas.create_window(x, 440, window = button, tags = "ecran")
+
+
+def draw_forecast(window, canvas):
+    
+    """Écran 2 : graphique des températures sur 7 jours"""
+
+    erase_screen(canvas)
+
+    # Données d'exemple du sujet (on les remplacera par l'API plus tard)
+    dates = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10', '2026-10-11', '2026-10-12']
+    t_mins = [18.0, 17.8, 12.6, 7.9, 12.3, 13.4, 13.1]
+    t_maxs = [27.4, 20.6, 17.6, 18.7, 20.2, 20.0, 20.7]
+
+    x = WIDTH // 2
+
+    # Titre et période
+    canvas.create_text(x, 35, text = "Prévisions sur 7 jours - " + city,
+                       font = ("Arial", 16, "bold"), fill = "white", tags = "ecran")
+    canvas.create_text(x, 65, text = "Du " + dates[0] + " au " + dates[-1],
+                       font = ("Arial", 11), fill = "white", tags = "ecran")
+
+    # Graphique Matplotlib
+    figure = create_plot(dates, t_mins, t_maxs)
+    zone_graphique = FigureCanvasTkAgg(figure, master = window)
+    canvas.create_window(x, 260, window = zone_graphique.get_tk_widget(), tags = "ecran")
+
+    # Bouton de retour à l'accueil
+    button = tk.Button(window, text = "Accueil",
+                       command = lambda : draw_welcome_screen(window, canvas))
+    canvas.create_window(x, 460, window = button, tags = "ecran")
+
