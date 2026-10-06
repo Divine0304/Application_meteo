@@ -17,6 +17,7 @@ canvas = None
 def main():
     global window, canvas
     window = tk.Tk()
+    window.title("Météo")
     canvas = tk.Canvas(window, width=400, height=500)
     canvas.pack()
 
