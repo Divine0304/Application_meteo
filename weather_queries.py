@@ -25,13 +25,15 @@ def get_current_weather(city):
 
 def get_forecast(city, start_day):
     """Retourne (dates, temperatures_min, temperatures_max) pour 7 jours à partir de start_day."""
-    end_day = start_day # + ...
+    latitude, longitude = CITIES[city]
 
     parameters = {
-        # ...
-        "start_date": start_day.isoformat(), # pour avoir le format "2025-01-31"
-        "end_date": end_day.isoformat(),
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": "temperature_2m,weather_code",
+        "daily": "temperature_2m_max,temperature_2m_min",
         "timezone": "auto",
+        "forecast_days": 1,
     }
     response = requests.get(URL_API, params = parameters, timeout = 10)
     data = response.json()
