@@ -43,3 +43,24 @@ def get_forecast(city, start_day):
     t_min_today = data["daily"]["temperature_2m_min"][0]
     t_max_today = data["daily"]["temperature_2m_max"][0]
     return temperature_now, code, t_min_today, t_max_today
+
+def get_forecast(city, start_day):
+    """Retourne (dates, temperatures_min, temperatures_max) pour 7 jours à partir de start_day."""
+    latitude, longitude = CITIES[city]
+    end_day = start_day + timedelta(days = 6) 
+
+    parameters = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "daily": "temperature_2m_max,temperature_2m_min",
+        "start_date": start_day.isoformat(),  
+        "end_date": end_day.isoformat(),
+        "timezone": "auto",
+    }
+    response = requests.get(URL_API, params = parameters, timeout = 10)
+    data = response.json()
+
+    dates = data["daily"]["time"]
+    temperatures_min = data["daily"]["temperature_2m_min"]
+    temperatures_max = data["daily"]["temperature_2m_max"]
+    return dates, temperatures_min, temperatures_max
