@@ -38,5 +38,8 @@ def get_forecast(city, start_day):
     response = requests.get(URL_API, params = parameters, timeout = 10)
     data = response.json()
 
-    dates, temperatures_min, temperatures_max = [], [], [] # TODO
-    return dates, temperatures_min, temperatures_max
+    temperature_now = data["current"]["temperature_2m"]
+    code = data["current"]["weather_code"]
+    t_min_today = data["daily"]["temperature_2m_min"][0]
+    t_max_today = data["daily"]["temperature_2m_max"][0]
+    return temperature_now, code, t_min_today, t_max_today
